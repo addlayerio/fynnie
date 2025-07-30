@@ -3,6 +3,7 @@
 # compiled output
 bin
 /dist
+/fyns
 tmp
 /out-tsc
 .npmrc

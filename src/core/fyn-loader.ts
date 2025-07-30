@@ -43,37 +43,45 @@ export class FYNLoader {
 
       // Clear module cache to reload FYN
       delete require.cache[require.resolve(path.resolve(filePath))];
-      
       const fynModule = require(path.resolve(filePath));
-      
-      // Detectar si es una clase con decoradores o un objeto tradicional
-      let fyn: FYN;
 
-      if (typeof (fynModule.default || fynModule) === 'function') {
-        // Es una clase con decoradores
-        const FynClass = fynModule.default || fynModule;
-        fyn = createFYNInstance(FynClass);
-      } else {
-        // Es un objeto tradicional
-        fyn = fynModule.default || fynModule;
+      const candidates = Object.values(fynModule);
+      let foundAny = false;
+
+      for (const exported of candidates) {
+        if (typeof exported === 'function') {
+          let fynInstance: FYN | null;
+          try {
+            fynInstance = createFYNInstance(exported);
+          } catch (err) {
+            logger.warn(`Failed to create FYN instance in ${filePath}: ${err.message}`);
+            continue;
+          }
+
+          if (fynInstance?.config?.fynId) {
+            try {
+              this.validateFYN(fynInstance);
+              this.loadedFYNs.set(fynInstance.config.fynId, fynInstance);
+              logger.info(`Loaded FYN: ${fynInstance.config.fynId} from ${filePath}`);
+              foundAny = true;
+            } catch (validationError) {
+              logger.error(`Invalid FYN in ${filePath}:`, validationError);
+            }
+          }
+        }
       }
 
-      if (!fyn.config || !fyn.config.fynId) {
-        throw new Error(`Invalid FYN configuration in ${filePath}`);
+      if (!foundAny) {
+        logger.warn(`No valid FYN found in ${filePath}`);
       }
 
-      // Validate FYN configuration
-      this.validateFYN(fyn);
-
-      this.loadedFYNs.set(fyn.config.fynId, fyn);
-      logger.info(`Loaded FYN: ${fyn.config.fynId} from ${filePath}`);
-
-      return fyn;
+      return null;
     } catch (error) {
       logger.error(`Error loading FYN from ${filePath}:`, error);
       return null;
     }
   }
+
 
   private async installDependencies(fynDir: string): Promise<void> {
     return new Promise((resolve, reject) => {

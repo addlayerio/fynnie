@@ -24,7 +24,7 @@
 
 | Componente         | Descripción                                                                 |
 |--------------------|-----------------------------------------------------------------------------|
-| `fyn`              | Definición del flujo de tareas (en `.js`)                                   |
+| `fyn.js`              | Definición del flujo de tareas (en `.fyn.js`)                                   |
 | `task`             | Unidad ejecutable del flujo, escrita en JS/TS                              |
 | `FYNLoader`        | Carga y valida dinámicamente los FYNs desde disco                           |
 | `Scheduler`        | Ejecuta tareas según programación (cron o trigger manual)                   |
