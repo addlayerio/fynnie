@@ -1,0 +1,22 @@
+{
+    "exclude": ["src/**/*.spec.ts"],
+    "include": ["src/**/*.ts"],
+    "compilerOptions": {
+      "outDir": "./dist",
+      "baseUrl": "./src",
+      "sourceMap": true,
+      "declaration": false,
+      "moduleResolution": "node16",
+      "emitDecoratorMetadata": true,
+      "importHelpers": false,
+      "target": "es2022",
+      "lib": ["es2020", "dom"],
+      "skipLibCheck": true,
+      "skipDefaultLibCheck": true,
+      "esModuleInterop": true,
+      "experimentalDecorators": true,
+      "module": "Node16",
+      "types": ["node"]
+    }
+  }
+  

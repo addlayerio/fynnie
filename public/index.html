@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fynnie - Flow Your Nodes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+</head>
+<body class="bg-gray-100">
+    <div x-data="dashboard()" x-init="init()" class="min-h-screen">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center py-4">
+                    <h1 class="text-2xl font-bold text-gray-900">FYN Scheduler</h1>
+                    <div class="flex items-center space-x-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <span class="w-2 h-2 bg-green-400 rounded-full mr-1"></span>
+                            Running
+                        </span>
+                        <button @click="refreshData()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-blue-100 rounded-lg">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Total FYNs</p>
+                            <p class="text-2xl font-semibold text-gray-900" x-text="stats.totalFYNs"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-green-100 rounded-lg">
+                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Scheduled</p>
+                            <p class="text-2xl font-semibold text-gray-900" x-text="stats.scheduledFYNs"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-yellow-100 rounded-lg">
+                            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Running</p>
+                            <p class="text-2xl font-semibold text-gray-900" x-text="stats.runningExecutions"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-red-100 rounded-lg">
+                            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Failed</p>
+                            <p class="text-2xl font-semibold text-gray-900" x-text="stats.failedExecutions"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FYNs Table -->
+            <div class="bg-white shadow rounded-lg mb-8">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-medium text-gray-900">FYNs</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">FYN ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Schedule</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tasks</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Owner</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <template x-for="fyn in fyns" :key="fyn.fynId">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900" x-text="fyn.fynId"></div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="text-sm text-gray-900" x-text="fyn.description || 'No description'"></div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800" x-text="fyn.schedule || 'Manual'"></span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="fyn.taskCount"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="fyn.owner || 'Unknown'"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <button @click="triggerFYN(fyn.fynId)" class="text-blue-600 hover:text-blue-900 mr-3">Trigger</button>
+                                        <button @click="viewFYN(fyn.fynId)" class="text-green-600 hover:text-green-900">View</button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Recent Executions -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-medium text-gray-900">Recent Executions</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Execution ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">FYN ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Time</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <template x-for="execution in executions.slice(0, 10)" :key="execution.executionId">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900" x-text="execution.executionId.substring(0, 8) + '...'"></div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="execution.fynId"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                                            :class="{
+                                                'bg-green-100 text-green-800': execution.status === 'success',
+                                                'bg-red-100 text-red-800': execution.status === 'failed',
+                                                'bg-yellow-100 text-yellow-800': execution.status === 'running',
+                                                'bg-gray-100 text-gray-800': execution.status === 'pending'
+                                            }"
+                                            x-text="execution.status"></span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="formatDate(execution.startTime)"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="getDuration(execution)"></td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function dashboard() {
+            return {
+                fyns: [],
+                executions: [],
+                stats: {
+                    totalFYNs: 0,
+                    scheduledFYNs: 0,
+                    runningExecutions: 0,
+                    failedExecutions: 0
+                },
+
+                async init() {
+                    await this.refreshData();
+                    // Refresh data every 30 seconds
+                    setInterval(() => this.refreshData(), 30000);
+                },
+
+                async refreshData() {
+                    try {
+                        // Fetch FYNs
+                        const fynsResponse = await fetch('/api/fyns');
+                        this.fyns = await fynsResponse.json();
+
+                        // Fetch executions
+                        const executionsResponse = await fetch('/api/executions');
+                        this.executions = await executionsResponse.json();
+
+                        // Update stats
+                        this.updateStats();
+                    } catch (error) {
+                        console.error('Error refreshing data:', error);
+                    }
+                },
+
+                updateStats() {
+                    this.stats.totalFYNs = this.fyns.length;
+                    this.stats.scheduledFYNs = this.fyns.filter(fyn => fyn.schedule).length;
+                    this.stats.runningExecutions = this.executions.filter(exec => exec.status === 'running').length;
+                    this.stats.failedExecutions = this.executions.filter(exec => exec.status === 'failed').length;
+                },
+
+                async triggerFYN(fynId) {
+                    try {
+                        const response = await fetch(`/api/fyns/${fynId}/trigger`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({})
+                        });
+                        
+                        if (response.ok) {
+                            const result = await response.json();
+                            alert(`FYN ${fynId} triggered successfully! Execution ID: ${result.executionId}`);
+                            await this.refreshData();
+                        } else {
+                            const error = await response.json();
+                            alert(`Error triggering FYN: ${error.error}`);
+                        }
+                    } catch (error) {
+                        alert(`Error triggering FYN: ${error.message}`);
+                    }
+                },
+
+                viewFYN(fynId) {
+                    window.open(`/api/fyns/${fynId}`, '_blank');
+                },
+
+                formatDate(dateString) {
+                    if (!dateString) return 'N/A';
+                    return new Date(dateString).toLocaleString();
+                },
+
+                getDuration(execution) {
+                    if (!execution.startTime) return 'N/A';
+                    if (!execution.endTime && execution.status !== 'running') return 'N/A';
+                    
+                    const start = new Date(execution.startTime);
+                    const end = execution.endTime ? new Date(execution.endTime) : new Date();
+                    const duration = Math.round((end - start) / 1000);
+                    
+                    if (duration < 60) return `${duration}s`;
+                    if (duration < 3600) return `${Math.round(duration / 60)}m`;
+                    return `${Math.round(duration / 3600)}h`;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
