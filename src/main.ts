@@ -111,7 +111,7 @@ class FYNSchedulerApp {
       },
     });
     await this.app.register(fastifyStatic, {
-      root: path.join(__dirname, '../public'),
+      root: path.join(__dirname, 'public'),
       prefix: '/',
     });
 

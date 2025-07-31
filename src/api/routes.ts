@@ -142,6 +142,16 @@ export async function createRoutes(
     }
   });
 
+  fastify.get('/vault', async (request, reply) => {
+    try {
+      const keys = await vaultService.getAllKeys();
+      reply.send({ count: keys.length, keys });
+    } catch (error) {
+      logger.error('Error getting all vault keys:', error);
+      reply.status(500).send({ error: 'Failed to get all vault keys' });
+    }
+  });
+
   fastify.post('/vault', async (request, reply) => {
     const { key, value } = request.body as { key: string; value: string };
     if (!key || !value) {

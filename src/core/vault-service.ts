@@ -15,6 +15,14 @@ export class VaultService {
     this.secret = new Secret(VAULT_SECRET);
   }
 
+  async getAllKeys(): Promise<string[]> {
+    const keys: string[] = [];
+    for await (const [key] of this.keyv.iterator({})) {
+      keys.push(key as string);
+    }
+    return keys;
+  }
+
   private encrypt(value: string): string {
     const token = new Token({
       secret: this.secret,
@@ -39,7 +47,9 @@ export class VaultService {
   }
 
   async getSecret(key: string): Promise<string | null> {
+    console.log(key)
     const encrypted = await this.keyv.get(key);
+    console.log(encrypted)
     if (!encrypted || typeof encrypted !== 'string') return null;
 
     try {
