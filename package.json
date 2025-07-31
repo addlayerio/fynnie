@@ -14,6 +14,10 @@
     "docker:compose": "docker-compose up -d"
   },
   "dependencies": {
+    "@babel/core": "^7.28.0",
+    "@babel/plugin-proposal-class-properties": "^7.18.6",
+    "@babel/plugin-proposal-decorators": "^7.28.0",
+    "@babel/preset-env": "^7.28.0",
     "@babel/register": "^7.27.1",
     "@fastify/cors": "^11.0.1",
     "@fastify/helmet": "^13.0.1",
@@ -39,10 +43,6 @@
     "winston": "^3.11.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.28.0",
-    "@babel/plugin-proposal-class-properties": "^7.18.6",
-    "@babel/plugin-proposal-decorators": "^7.28.0",
-    "@babel/preset-env": "^7.28.0",
     "@types/fs-extra": "^11.0.4",
     "@types/jest": "^29.5.11",
     "@types/js-yaml": "^4.0.9",

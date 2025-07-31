@@ -23,10 +23,11 @@ import { Scheduler } from './core/scheduler';
 import { JobQueue } from './core/job-queue';
 import { GitSync } from './core/git-sync';
 import { FileWatcher } from './core/file-watcher';
+import { VaultService } from './core/vault-service';
 import { createRoutes } from './api/routes';
 import { logger } from './utils/logger';
 
-const PORT = process.env.PORT || 3030;
+const PORT = process.env.PORT || 3000;
 const FYNS_FOLDER = process.env.FYN_FOLDER ?? path.join(process.cwd(), 'fyns');
 const REDIS_HOST = process.env.REDIS_HOST || 'localhost';
 const REDIS_PORT = parseInt(process.env.REDIS_PORT || '6379');
@@ -37,7 +38,7 @@ const GIT_BRANCH = process.env.GIT_BRANCH || 'main';
 const GIT_SYNC_INTERVAL = parseInt(process.env.GIT_SYNC_INTERVAL || '60');
 const GIT_SYNC_USERNAME = process.env.GIT_SYNC_USERNAME;
 const GIT_SYNC_PASSWORD = process.env.GIT_SYNC_PASSWORD;
-
+const vaultService = globalThis.vault as VaultService;
 class FYNSchedulerApp {
   private app: FastifyInstance;
   private fynLoader: FYNLoader;
@@ -111,7 +112,7 @@ class FYNSchedulerApp {
     });
     await this.app.register(fastifyStatic, {
       root: path.join(__dirname, '../public'),
-      prefix: '/', // Public files available at /
+      prefix: '/',
     });
 
     // Log each request

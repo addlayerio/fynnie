@@ -27,7 +27,9 @@ RUN apt-get update && apt-get install -y \
 
 COPY package*.json .
 RUN npm install --only=production
+COPY --chown=node:node --from=builder /app/public ./public
 COPY --chown=node:node --from=builder /app/dist .
+COPY --chown=node:node --from=builder /app/babel.config.js .
 COPY --chown=node:node --from=builder /app/scripts .
 
 RUN chmod +x ./entrypoint.sh

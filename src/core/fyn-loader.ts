@@ -16,11 +16,10 @@ export class FYNLoader {
   async loadAllFYNs(): Promise<Map<string, FYN>> {
     try {
       await fs.ensureDir(this.fynPath);
-      const files = await fs.readdir(this.fynPath);
+      const files = await this.findAllFynFilesRecursively(this.fynPath);
+
       for (const file of files) {
-        if (file.endsWith('.fyn.js')) {
-          await this.loadFYN(path.join(this.fynPath, file));
-        }
+        await this.loadFYN(file);
       }
 
       logger.info(`Loaded ${this.loadedFYNs.size} FYNs`);
@@ -29,6 +28,22 @@ export class FYNLoader {
       logger.error('Error loading FYNs:', error);
       throw error;
     }
+  }
+
+  private async findAllFynFilesRecursively(dir: string): Promise<string[]> {
+    const entries = await fs.readdir(dir, { withFileTypes: true });
+    const files = await Promise.all(
+      entries.map(async (entry) => {
+        const fullPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+          return this.findAllFynFilesRecursively(fullPath);
+        } else if (entry.isFile() && entry.name.endsWith('.fyn.js')) {
+          return fullPath;
+        }
+        return [];
+      })
+    );
+    return files.flat();
   }
 
   async loadFYN(filePath: string): Promise<FYN | null> {

@@ -3,7 +3,9 @@ import { FYNLoader } from '../core/fyn-loader';
 import { Scheduler } from '../core/scheduler';
 import { JobQueue } from '../core/job-queue';
 import { GitSync } from '../core/git-sync';
+import { VaultService } from '../core/vault-service';
 import { logger } from '../utils/logger';
+const vaultService = globalThis.vault as VaultService;
 
 export async function createRoutes(
   fastify: FastifyInstance,
@@ -12,7 +14,7 @@ export async function createRoutes(
   jobQueue: JobQueue,
   gitSync: GitSync
 ): Promise<void> {
-  
+
   // Health check
   fastify.get('/health', async (request, reply) => {
     reply.send({ status: 'healthy', timestamp: new Date().toISOString() });
@@ -137,6 +139,66 @@ export async function createRoutes(
     } catch (error) {
       logger.error('Error reloading FYNs:', error);
       reply.status(500).send({ error: 'Failed to reload FYNs' });
+    }
+  });
+
+  fastify.post('/vault', async (request, reply) => {
+    const { key, value } = request.body as { key: string; value: string };
+    if (!key || !value) {
+      return reply.status(400).send({ error: 'Se requieren key y value' });
+    }
+
+    try {
+      await vaultService.setSecret(key, value);
+      reply.send({ success: true, key });
+    } catch (error) {
+      logger.error('Error setting secret:', error);
+      reply.status(500).send({ error: 'Failed to set secret' });
+    }
+  });
+
+  // Obtener un secret
+  fastify.get('/vault/:key', async (request, reply) => {
+    const { key } = request.params as { key: string };
+
+    try {
+      const value = await vaultService.getSecret(key);
+      if (value === null) {
+        return reply.status(404).send({ error: 'Secret not found' });
+      }
+      reply.send({ key, value });
+    } catch (error) {
+      logger.error('Error getting secret:', error);
+      reply.status(500).send({ error: 'Failed to get secret' });
+    }
+  });
+
+  // Verificar si existe un secret
+  fastify.get('/vault/:key/exists', async (request, reply) => {
+    const { key } = request.params as { key: string };
+
+    try {
+      const exists = await vaultService.hasSecret(key);
+      reply.send({ key, exists });
+    } catch (error) {
+      logger.error('Error checking secret existence:', error);
+      reply.status(500).send({ error: 'Failed to check secret' });
+    }
+  });
+
+  // Eliminar un secret
+  fastify.delete('/vault/:key', async (request, reply) => {
+    const { key } = request.params as { key: string };
+
+    try {
+      const deleted = await vaultService.deleteSecret(key);
+      if (!deleted) {
+        return reply.status(404).send({ error: 'Secret not found or already deleted' });
+      }
+      reply.send({ key, deleted: true });
+    } catch (error) {
+      logger.error('Error deleting secret:', error);
+      reply.status(500).send({ error: 'Failed to delete secret' });
     }
   });
 }
