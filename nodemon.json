@@ -1,0 +1,12 @@
+{
+  "watch": ["src", "fyn"],
+  "ext": "ts,js",
+  "ignore": [
+    "node_modules",
+    ".babel*",
+    "dist",
+    "tmp",
+    "coverage"
+  ],
+  "exec": "tsc && node dist/main.js"
+}

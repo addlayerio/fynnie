@@ -17,21 +17,18 @@ export const logger = winston.createLogger({
   ),
   transports: [
     // File transport
-    new winston.transports.File({ 
+    new winston.transports.File({
       filename: logFile,
       maxsize: 10 * 1024 * 1024, // 10MB
       maxFiles: 5
     }),
-    
-    // Console transport (only in development)
-    ...(process.env.NODE_ENV !== 'production' ? [
-      new winston.transports.Console({
-        format: winston.format.combine(
-          winston.format.colorize(),
-          winston.format.simple()
-        )
-      })
-    ] : [])
+
+    new winston.transports.Console({
+      format: winston.format.combine(
+        winston.format.colorize(),
+        winston.format.simple()
+      )
+    })
   ]
 });
 

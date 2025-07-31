@@ -7,13 +7,15 @@ require('@babel/register')({
 });
 
 import 'reflect-metadata';
-import './decorators';
+
+import dotenv from 'dotenv';
+dotenv.config();
+
+import './global';
 import fastify, { FastifyInstance } from 'fastify';
 import fastifyCors from '@fastify/cors';
-import fastifyHelmet from '@fastify/helmet';
 import fastifyStatic from '@fastify/static';
 import path from 'path';
-import dotenv from 'dotenv';
 import Redis from 'ioredis';
 
 import { FYNLoader } from './core/fyn-loader';
@@ -24,11 +26,8 @@ import { FileWatcher } from './core/file-watcher';
 import { createRoutes } from './api/routes';
 import { logger } from './utils/logger';
 
-// Load environment variables
-dotenv.config();
-
 const PORT = process.env.PORT || 3030;
-const FYNS_FOLDER = process.env.FYN_FOLDER || '/home/mpanichella/TeamProjects/addlayer/fynnie/fyns';
+const FYNS_FOLDER = process.env.FYN_FOLDER ?? path.join(process.cwd(), 'fyns');
 const REDIS_HOST = process.env.REDIS_HOST || 'localhost';
 const REDIS_PORT = parseInt(process.env.REDIS_PORT || '6379');
 const REDIS_PASSWORD = process.env.REDIS_PASSWORD;
