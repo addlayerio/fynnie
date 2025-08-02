@@ -1,5 +1,5 @@
 import Keyv from 'keyv';
-import KeyvSqlite from '@keyv/sqlite';
+import KeyvFile from 'keyv-file';
 import { Secret, Token } from 'fernet';
 
 const VAULT_SECRET = process.env.VAULT_SECRET;
@@ -9,8 +9,8 @@ export class VaultService {
   private keyv: Keyv;
   private secret: Secret;
 
-  constructor(dbUri: string) {
-    const store = new KeyvSqlite({ uri: dbUri });
+  constructor(filePath: string) {
+    const store = new KeyvFile({ filename: filePath });
     this.keyv = new Keyv({ store });
     this.secret = new Secret(VAULT_SECRET);
   }
@@ -47,9 +47,7 @@ export class VaultService {
   }
 
   async getSecret(key: string): Promise<string | null> {
-    console.log(key)
     const encrypted = await this.keyv.get(key);
-    console.log(encrypted)
     if (!encrypted || typeof encrypted !== 'string') return null;
 
     try {

@@ -7,7 +7,7 @@ globalThis.FYN = FYN;
 globalThis.Task = Task;
 globalThis.DependsOn = DependsOn;
 
-const dbPath = path.join(process.cwd(), 'data', 'vault.sqlite');
+const dbPath = path.join(process.cwd(), 'data', 'vault.json');
 const dirPath = path.dirname(dbPath);
 
 // Asegurarse de que la carpeta existe
@@ -15,6 +15,6 @@ if (!fs.existsSync(dirPath)) {
   fs.mkdirSync(dirPath, { recursive: true });
 }
 
-const vault = new VaultService(`sqlite://${dbPath}`);
+const vault = new VaultService(dbPath);
 
 globalThis.vault = vault;
