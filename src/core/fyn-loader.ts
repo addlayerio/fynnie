@@ -144,10 +144,11 @@ export class FYNLoader {
     }
   }
 
-  private isValidCron(cron: string): boolean {
-    const cronRegex = /^(\*|[0-5]?\d|\*\/[0-5]?\d) (\*|1?\d|2[0-3]|\*\/1?\d|\*\/2[0-3]) (\*|[12]?\d|3[01]|\*\/[12]?\d|\*\/3[01]) (\*|[1-9]|1[0-2]|\*\/[1-9]|\*\/1[0-2]) (\*|[0-6]|\*\/[0-6])$/;
-    return cronRegex.test(cron);
-  }
+private isValidCron(cron: string): boolean {
+  const cronField = '(\\*|\\d+|\\*/\\d+|\\d+-\\d+|\\d+(,\\d+)+)';
+  const cronRegex = new RegExp(`^${cronField}\\s+${cronField}\\s+${cronField}\\s+${cronField}\\s+${cronField}$`);
+  return cronRegex.test(cron);
+}
 
   getFYN(fynId: string): FYN | undefined {
     return this.loadedFYNs.get(fynId);
