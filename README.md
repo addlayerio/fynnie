@@ -33,11 +33,3 @@
 | `FileWatcher`      | Observa cambios en los FYNs y recarga automáticamente                      |
 | `Redis`            | Backend de estado para colas y control de concurrencia                     |
 
----
-
-## 📦 Instalación
-
-```bash
-git clone https://github.com/worldsysgroup/fynnie.git
-cd fynnie
-npm install
